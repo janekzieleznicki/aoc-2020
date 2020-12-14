@@ -1,0 +1,70 @@
+[package]
+name = "aoc-rust"
+version = "0.1.0"
+authors = ["Jan Zieleźnicki <janek.zieleznicki@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "day-two"
+path = "day_two/src/main.rs"
+
+[[bin]]
+name = "day-three"
+path = "day_three/src/main.rs"
+
+
+[[bin]]
+name = "day-four"
+path = "day_four/src/main.rs"
+
+[[bin]]
+name = "day-five"
+path = "day-five/src/main.rs"
+
+[[bin]]
+name = "day-six"
+path = "day-six/src/main.rs"
+
+[[bin]]
+name = "day-seven"
+path = "day-seven/src/main.rs"
+
+[[bin]]
+name = "day-eight"
+path = "day-eight/src/main.rs"
+
+[[bin]]
+name = "day-nine"
+path = "day-nine/src/main.rs"
+
+[[bin]]
+name = "day-ten"
+path = "day-ten/src/main.rs"
+
+[[bin]]
+name = "day-eleven"
+path = "day-eleven/src/main.rs"
+
+[[bin]]
+name = "day-twelve"
+path = "day-twelve/src/main.rs"
+
+[[bin]]
+name = "day-thirteen"
+path = "day-thirteen/src/main.rs"
+
+[[bin]]
+name = "day-fourteen"
+path = "day-fourteen/src/main.rs"
+
+[dependencies]
+itertools = "0.9.0"
+bidir_iter = "0.2.1"
+num = "0.3"
+debug_print = "1.0.0"
+prefix_sum = "0.1.0"
+reduce="0.1.3"
+regex = "1"
+lazy_static = "1.4.0"
+either = "1.1.0"
