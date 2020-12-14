@@ -1,6 +1,5 @@
 use itertools::{sorted, Itertools};
 use debug_print::{debug_print};
-use reduce::Reduce;
 use std::path::Path;
 use std::fs::File;
 use std::io;
@@ -17,11 +16,6 @@ pub fn from_file<P>(name: P) -> Vec<u32> where P: AsRef<Path> {
 fn main() {
     let u32_input = from_file("./day-ten/adapters.dat");
     let mut bag = AdapterBag::from(&*u32_input.into_iter().map_into::<Adapter>().collect_vec());
-    // if let Some(chains) = bag.chain_from_wall() {
-    //     chains.iter().for_each(|chain| { debug_print!("{:?}\n", chain) });
-    //     let (one_diff_count, three_diff_coiunt) = number_of_diferences(&chains[0]);
-    //     println!("Differences count: one:{} | three: {}, Product: {}", one_diff_count, three_diff_coiunt, one_diff_count * three_diff_coiunt);
-    // }
     println!("Possible adapter chain count: {}", bag.all_chains_from_wall());
 }
 
@@ -36,7 +30,6 @@ impl From<u32> for Adapter {
     }
 }
 
-// impl From<&{integr}>
 impl Adapter {
     pub fn compatible(&self, right: &Adapter) -> bool {
         self.rating < right.rating
@@ -76,113 +69,38 @@ impl AdapterBag {
             false => Some(possibles)
         }
     }
-    fn all_chains(&mut self, used: &[Adapter], possible: &[Adapter]) {
-        if used.last().unwrap().compatible(&self.device) {
-            self.set_count += 1;
-        } else {
-            debug_print!("Used: {:?} | Possible: {:?}\n\n",used,possible);
-            // let mut res = Vec::new();
-            for x in 0..possible.len() {
-                if used.last().unwrap().compatible(&possible[x]) {
-                    let mut new_sued = used.to_vec();
-                    new_sued.push(possible[x].clone());
-                    debug_print!("Sending Used: {:?}, Possible: {:?}",&new_sued,&possible[x + 1..]);
-                    self.all_chains(&*new_sued, &possible[x + 1..]);
-                } else if possible[x].rating - used.last().unwrap().rating > 3 {
-                    debug_print!("Exiting iter due to difference between {} and {}\n",possible[x].rating,used.last().unwrap().rating);
-                    break;
-                } else {
-                    debug_print!("Sending Used: {:?}, Possible: {:?}",&used,&possible[x + 1..]);
-                    self.all_chains(&*used, &possible[x + 1..]);
-                }
-            }
-        }
-    }
-
     pub fn chain_from_wall(&self) -> Option<Vec<Vec<Adapter>>> {
         self.single_chain(&[Adapter { rating: 0 }], &self.adapters)
     }
-    pub fn all_chain_from_wall_helper(rest: &[u128], cache: &mut HashMap<u128,u128>) -> u128 {
+    pub fn all_chain_from_wall_helper(rest: &[u128], cache: &mut HashMap<u128, u128>) -> u128 {
         debug_print!("Values {:?}\nCache: {:?}\n",rest,cache);
-        match cache.get(rest.first().unwrap()){
+        match cache.get(rest.first().unwrap()) {
             Some(x) => return *x,
             None => {
-                if rest.len() == 1{
-                    cache.insert(*rest.first().unwrap(),1);
-                    return 1
-                } else {
-                    let mut count = 0;
-                    let mut niter = rest.iter();
-                    niter.next();
-                    for (i, next) in niter.enumerate() {
-                        if next-rest.first().unwrap() <= 3 {
-                            let cn = AdapterBag::all_chain_from_wall_helper(&rest[(i+1)..],cache);
-                            count+=cn;
-                        } else {
-                            break;
-                        }
+                match rest.len() {
+                    1 => {
+                        cache.insert(*rest.first().unwrap(), 1);
+                        return 1;
                     }
-                    cache.insert(*rest.first().unwrap(),count);
-                    return count
+                    _ => {
+                        let count = rest.iter().dropping(1).enumerate()
+                            .take_while(|(i, &next)| (next - rest.first().unwrap()) <= 3)
+                            .map(|(i, next)|
+                                AdapterBag::all_chain_from_wall_helper(&rest[(i + 1)..], cache)
+                            ).sum();
+                        cache.insert(*rest.first().unwrap(), count);
+                        return count;
+                    }
                 }
             }
         }
     }
     pub fn all_chains_from_wall(&mut self) -> u128 {
-        // let plug = self.adapters.clone();
-        // self.all_chains(&[Adapter { rating: 0 }], &plug);
-        // self.set_count
-        let mut adapters:Vec<u128> = Vec::new();
+        let mut adapters: Vec<u128> = Vec::new();
         adapters.push(0);
-        adapters.extend(self.adapters.iter().map(|adapter|adapter.rating as u128));
+        adapters.extend(self.adapters.iter().map(|adapter| adapter.rating as u128));
         adapters.push(self.device.rating as u128);
-        // debug_print!("Values: {:?}",adapters);
-        // AdapterBag::part2_helper(&mut HashMap::new(), adapters[0], 1, &*adapters)
-        AdapterBag::all_chain_from_wall_helper(&*adapters,&mut HashMap::new())
-    }
-    // Recursive helper. Memoized via memo_table to make not insanely expensive.  Returns the number of
-// ways to connect the adapter `prev_val` to the adapters in `&nums[start_idx..]`. We pass
-// `start_idx` explicitly instead of the subslice itself, so that we can use `(prev_val,
-// start_idx)` as a cheap key into the memo table.
-    fn part2_helper(
-        memo_table: &mut HashMap<(u32, usize), u32>,
-        prev_val: u32,
-        start_idx: usize,
-        nums: &[u32],
-    ) -> u32 {
-        if let Some(res) = memo_table.get(&(prev_val, start_idx)) {
-            // We've already computed this. Return the previous result.
-            return *res;
-        }
-
-        // Alias for the slice of interest, for convenience.
-        let slice = &nums[start_idx..nums.len()];
-
-        // We should never be called with a zero-length slice (assuming sane original input).
-        debug_assert_ne!(slice.len(), 0);
-
-        // If the gap between the previous value and the first value in the slice is too large, then
-        // there are no ways to arrange the slice.
-        if slice[0] - prev_val > 3 {
-            return 0;
-        }
-        // If there's only one value in the slice, then there's only one possibility.
-        if slice.len() == 1 {
-            return 1;
-        }
-        // Number of ways to arrange the slice if we include the first value of the slice.
-        let ways_with_next =
-            AdapterBag::part2_helper(memo_table, slice[0], start_idx + 1, nums);
-        // Number of ways to arrange the slice if we *don't* include the first value of the slice.
-        let ways_without_next = if slice[1] - prev_val > 3 {
-            0
-        } else {
-            AdapterBag::part2_helper(memo_table, prev_val, start_idx + 1, nums)
-        };
-        let res = ways_with_next + ways_without_next;
-        // Memoize recursive results, so that we don't need to recompute them later.
-        memo_table.insert((prev_val, start_idx), res);
-        res
+        AdapterBag::all_chain_from_wall_helper(&*adapters, &mut HashMap::new())
     }
 }
 

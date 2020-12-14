@@ -3,7 +3,6 @@ use std::path::Path;
 use std::io;
 use std::io::BufRead;
 
-// use math::round::ceil;
 #[derive(Debug)]
 struct Range {
     min: usize,
@@ -98,8 +97,6 @@ pub fn part_two<P>(name: P) where P: AsRef<Path> {
             None => break
         }
     }
-
-    // println!("Highest Seat ID: {}", max);
 }
 
 fn main() {

@@ -60,7 +60,6 @@ impl Code {
     pub fn execute(&mut self) -> i32 {
         self.accumulator = 0;
         let mut index: usize = 0;
-        // let mut iter = self.instructions.as_slice().iter();
         loop {
             let ins = &mut self.instructions[index];
             match &ins {
@@ -92,7 +91,6 @@ impl Code {
     pub fn execute_correctly(&mut self) -> Result<usize, usize> {
         self.accumulator = 0;
         let mut index: usize = 0;
-        // let mut iter = self.instructions.as_slice().iter();
         loop {
             if index == self.instructions.len() {
                 return Ok(index);
@@ -166,9 +164,7 @@ fn try_until_correct(code: &mut Code) -> i32 {
 
 fn main() {
     let mut code = Code::from_file("./day-eight/asm.dat");
-    // println!("Instructions {:#?}", code.instructions);
     println!("Result {:#?}", code.execute());
-
     println!("part two {:#?}",try_until_correct(&mut Code::from_file("./day-eight/asm.dat")));
 }
 

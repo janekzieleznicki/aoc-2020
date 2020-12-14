@@ -25,15 +25,11 @@ impl Mask {
         val
     }
     fn all_addresses(&self, inst: &WriteInstruction) -> Vec<u64> {
-
-        // val.bitor_assign(self.ones);
-        // val.bitand_assign(!self.zeroes);
         let masked = inst.addr.bitand(self.zeroes);
         let masked = masked.bitor(self.ones);
         let mut addresses = vec![masked];
         debug_print!("{} => \n{:0>35b}\n", inst.addr, masked);
         self.floating.iter()
-            // .filter(|&index| masked.bitand(1 << index) != 0)
             .for_each(
                 |index| {
                     addresses.extend(addresses.clone().iter().map(|addr| addr ^ (1u64 << index)));
@@ -43,7 +39,6 @@ impl Mask {
             { debug_print!("{:0>35b}\n", addr); }
         );
         addresses
-        // addresses.into_iter()..collect_vec()
     }
 }
 
@@ -105,7 +100,6 @@ impl Interpreter {
                 let mask_str = matched.name("mask").unwrap().as_str();
                 debug_print!("{}\n", mask_str);
                 return Left(Mask::from_str(mask_str).unwrap());
-                // self.current_mask = Mask::from_str(mask_str).unwrap();
             }
             None => {}
         };
@@ -119,7 +113,6 @@ impl Interpreter {
     fn decode(&mut self, matched: regex::Captures) -> WriteInstruction {
         let addr = matched.name("address").unwrap().as_str().parse::<usize>().unwrap();
         let val = matched.name("value").unwrap().as_str().parse::<u64>().unwrap();
-        // self.memory.insert(addr, self.current_mask.apply(val));
         debug_print!("{} => {}\n", addr, val);
         WriteInstruction { addr: addr as u64, val }
     }
@@ -175,13 +168,12 @@ impl Decoder for DecoderV2 {
         let either = self.interpreter.read(s);
         either.as_ref().left().map(|mask| self.interpreter.current_mask = mask.clone());
         either.as_ref().right()
-            .map(|inst|
-                {
-                    self.interpreter.current_mask.all_addresses(&inst).iter()
-                        .for_each(|&addr|
-                            { self.interpreter.memory.insert(addr, inst.val); }
-                        );
-                });
+            .map(|inst| {
+                self.interpreter.current_mask.all_addresses(&inst).iter()
+                    .for_each(|&addr|
+                        { self.interpreter.memory.insert(addr, inst.val); }
+                    );
+            });
     }
     fn sum_values(&self) -> u64 {
         self.interpreter.sum_values()

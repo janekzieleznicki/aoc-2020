@@ -134,11 +134,6 @@ pub fn inside_bag(bag_rules: &[BagRule], bag: &Bag) -> usize {
             .map(|(bag, count)| bag_rules.iter()
                 .filter(|&rule| rule.color == bag.color)
                 .map(|rule| {
-                    // println!("Updating {:?}, with {}", bag, count);
-                    // match rule.allowed[..] {
-                    //     [] => vec![(Bag { color: rule.color.clone() }, 0 * count)],
-                    //     _ => rule.allowed.iter().map(|all| (Bag { color: all.color.clone() }, all.count * count)).collect::<Vec<(Bag, usize)>>()
-                    // }
                     rule.allowed.iter().map(|all| (Bag { color: all.color.clone() }, match all.count {
                         0 => *count,
                         _ => all.count * count
@@ -146,30 +141,20 @@ pub fn inside_bag(bag_rules: &[BagRule], bag: &Bag) -> usize {
                 }).flatten().collect::<Vec<(Bag, usize)>>()
             ).flatten().collect::<Vec<(Bag, usize)>>().iter()
             .for_each(|(bag, count)| {
-                // println!("Updating {:?}, with {}", bag, count);
                 let curr = new_bags.entry(bag.clone()).or_insert(0);
                 *curr += count;
             });
 
         println!("---------------\nBags: {:#?}\n\nNew Bags:{:#?}", bags, new_bags);
-        // if iter >= 1 {
-        //     break;
-        // }
-        // iter += 1;
         match new_bags {
             _ if new_bags.is_empty() => break,
             _ => {
-                // new_bags.into_iter().for_each(|(key, val)| {
-                //     let curr = bags.entry(key).or_default();
-                //     *curr += val;
-                // });
                 bags = new_bags;
                 iter += bags.values().sum::<usize>();
                 continue;
             }
         }
     }
-    // bags.values().sum()
     iter
 }
 
