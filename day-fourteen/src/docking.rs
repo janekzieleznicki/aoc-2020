@@ -2,7 +2,7 @@ use std::str::FromStr;
 use std::fmt::{Display, Formatter};
 use std::fmt;
 use std::ops::{BitOrAssign, BitAndAssign, BitAnd, BitOr};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use either::*;
 use debug_print::{debug_print};
 
@@ -169,7 +169,7 @@ impl Decoder for DecoderV2 {
         either.as_ref().left().map(|mask| self.interpreter.current_mask = mask.clone());
         either.as_ref().right()
             .map(|inst| {
-                self.interpreter.current_mask.all_addresses(&inst).iter()
+                self.interpreter.current_mask.all_addresses(&inst).iter().unique()
                     .for_each(|&addr|
                         { self.interpreter.memory.insert(addr, inst.val); }
                     );
