@@ -130,13 +130,6 @@ mod tests{
             assert_eq!(spoken_number(&mut generator, 2020), 662);
         }
     }
-    #[test]
-    fn get_30000000th_number_from_puzzle_input() {
-        {
-            let mut generator = NumberGenerator::from(vec![16,11,15,0,1,7].as_slice());
-            assert_eq!(spoken_number(&mut generator, 30000000), 662);
-        }
-    }
 }
 
 
