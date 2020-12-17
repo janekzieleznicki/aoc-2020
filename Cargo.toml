@@ -62,6 +62,10 @@ path = "day-fourteen/src/main.rs"
 name = "day-fifteen"
 path = "day-fifteen/src/day15.rs"
 
+[[bin]]
+name = "day-sixteen"
+path = "day-sixteen/src/day16.rs"
+
 [dependencies]
 itertools = "0.9.0"
 bidir_iter = "0.2.1"
