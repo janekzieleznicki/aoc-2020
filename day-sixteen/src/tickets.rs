@@ -1,4 +1,4 @@
-use std::ops::{Generator, GeneratorState, Range, RangeInclusive};
+use std::ops::{Range, RangeInclusive};
 use std::pin::Pin;
 use std::str::FromStr;
 use itertools::Itertools;
